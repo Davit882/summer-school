@@ -1,54 +1,61 @@
 #include <iostream>
 #include <cmath>
-using namespace std;
 
-void solve_quadratic(double a, double b, double c) {
+void solveQuadratic(double a, double b, double D) {
+    if (D > 0) {
+        double x1 = (-b + std::sqrt(D)) / (2 * a);
+        double x2 = (-b - std::sqrt(D)) / (2 * a);
+        std::cout << "Պատասխան: x1 = " << x1 << " x2 = " << x2 << std::endl;
+    } else if (D == 0) {
+        double x = -b / (2 * a);
+        std::cout << "Պատասխան: x = " << x << std::endl;
+    } else {
+        std::cout << "Լուծում չկա (դիսկրիմինանտը բացասական է)" << std::endl;
+    }
+}
+
+void solveEquation(double a, double b, double c) {
     if (a == 0) {
         if (b == 0) {
             if (c == 0) {
-                cout << "Հավասարումը ունի անվերջ շատ լուծումներ (0 = 0):" << endl;
+                std::cout << "x պատկանում է (-∞, +∞)" << std::endl;
             } else {
-                cout << "Լուծում չկա (հավասարումը սխալ է):" << endl;
+                std::cout << "Լուծում չունի (0x + c = 0 անհնար է, եթե c ≠ 0)" << std::endl;
             }
         } else {
             double x = -c / b;
-            cout << "Գծային հավասարում։ Լուծումը՝ x = " << x << endl;
+            std::cout << "Պատասխան: x = " << x << std::endl;
         }
     } else {
         double D = b * b - 4 * a * c;
-        cout << "Դիսկրիմինանտ՝ D = " << D << endl;
-
-        if (D > 0) {
-            double x1 = (-b + sqrt(D)) / (2 * a);
-            double x2 = (-b - sqrt(D)) / (2 * a);
-            cout << "Երկու արմատ՝" << endl;
-            cout << "x1 = " << x1 << endl;
-            cout << "x2 = " << x2 << endl;
-        } else if (D == 0) {
-            double x = -b / (2 * a);
-            cout << "Մեկ կրկնվող արմատ՝ x = " << x << endl;
-        } else {
-            cout << "Լուծում չկա։ Դիսկրիմինանտը բացասական է։" << endl;
-        }
+        solveQuadratic(a, b, D);
     }
 }
 
 int main() {
-    double a, b, c;
+    double testCases[][3] = {
+        {1, 4, 2},     // D > 0
+        {1, 2, 1},     // D == 0
+        {1, 2, 3},     // D < 0
+        {0, 4, -8},    // Linear
+        {0, 0, 0},     // Infinite solutions
+        {0, 0, 5},     // No solution
+        {-1, 2, -1},   // D == 0
+        {2, -7, 3}     // D > 0
+    };
 
-    cout << "Մուտքագրեք a գործակիցը: ";
-    cin >> a;
-    cout << "Մուտքագրեք b գործակիցը: ";
-    cin >> b;
-    cout << "Մուտքագրեք c գործակիցը: ";
-    cin >> c;
+    int numTests = sizeof(testCases) / sizeof(testCases[0]);
 
-    if (cin.fail()) {
-        cerr << "Սխալ: Պետք է մուտքագրել թվեր։" << endl;
-        return 1;
+    for (int i = 0; i < numTests; ++i) {
+        double a = testCases[i][0];
+        double b = testCases[i][1];
+        double c = testCases[i][2];
+
+        std::cout << "\nԹեստ #" << (i + 1) << ": ";
+        std::cout << a << "x² + " << b << "x + " << c << " = 0" << std::endl;
+
+        solveEquation(a, b, c);
     }
 
-    solve_quadratic(a, b, c);
     return 0;
 }
-
