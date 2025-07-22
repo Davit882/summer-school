@@ -43,6 +43,39 @@ def solve_quadratic(a, b, c):
         else:
             return "no_solution", ()
 
+def get_tests():
+    return [
+        (1, 2, 1, -1),             # մեկ լուծում
+        (1, -3, 2, 2, 1),          # երկու լուծում
+        (1, 4, 5),                 # լուծում չկա
+        (2, 5, -3, 0.5, -3),       # երկու լուծում
+        (1, 0, 1),                 # լուծում չկա
+        (0, 0, 0),                 # անվերջ լուծում
+        (0, 0, 5),                 # լուծում չկա
+        (0, 2, 4, -2),             # մեկ լուծում (գծային)
+    ]
+
+def run_tests():
+    for test_case in get_tests():
+        a, b, c, *expected = test_case
+        print(f"\n▶️ Թեստ a={a}, b={b}, c={c}")
+        result_type, values = solve_quadratic(a, b, c)
+
+        if result_type == "no_solution" and expected == []:
+            print(" Լուծում չկա — ճիշտ է")
+        elif result_type == "infinite_solutions" and expected == []:
+            print(" Անվերջ լուծում — ճիշտ է")
+        elif result_type == "one_solution" and len(expected) == 1 and math.isclose(values[0], expected[0], rel_tol=1e-9):
+            print(f" Մեկ լուծում x = {expected[0]}")
+        elif result_type == "two_solutions" and len(expected) == 2:
+            if all(math.isclose(e, a, rel_tol=1e-9) for e, a in zip(sorted(expected), sorted(values))):
+                print(f" Երկու լուծում x1 = {expected[0]}, x2 = {expected[1]}")
+            else:
+                print(f" Սխալ լուծումներ։ Սպասվում էր {expected}, ստացվեց {values}")
+        else:
+            print(f" Սխալ։ Ակնկալվում էր {expected}, բայց ստացվեց {result_type}՝ {values}")
+
+
 def main():
     a, b, c = get_coefficients()
     result_type, values = solve_quadratic(a, b, c)
@@ -59,5 +92,5 @@ def main():
         print("Հավասարումը ունի երկու լուծում՝ x1 =", values[0], ", x2 =", values[1])
 
 if __name__ == "__main__":
-    main()
+    run_tests()
 
