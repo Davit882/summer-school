@@ -1,0 +1,52 @@
+<html>
+  <body>
+    <canvas id="c" width="800" height="600"></canvas>
+    <script>
+      const C = document.getElementById("c").getContext("2d");
+      const W = C.canvas.width;
+      const H = C.canvas.height;
+      
+      const I = C.getImageData(0, 0, W, H);
+      drawFrame(I.data);
+      C.putImageData(I, 0, 0);
+
+      function drawFrame(D) {
+        for (let y = 0, i = 0; y < H; y++) {
+          for (let x = 0; x < W; x++) {
+            const p = getPixel(x, y);
+            D[i++] = p.r * 255;
+            D[i++] = p.g * 255;
+            D[i++] = p.b * 255;
+            D[i++] = p.a * 255;
+          }
+        }
+      }
+
+      function getPixel(x, y) {
+	const cx = W / 2; // գագաթ
+	const cy = H / 2; // գագաթ
+
+        const centerX = x - cx; 
+	const centerY = y - cy;
+
+	const parabolaX = Math.abs(centerY + (centerX ** 2) * 0.1) < 1.5; //պարաբոլի աճման ուղղութիւնը փոխելու համար պէտք է փոփոխել «+»֊ը «-»֊ի վրայ
+        const parabolaY = Math.abs(centerX - (centerY ** 2) * 0.1) < 1.5;
+
+        const yxf = Math.abs(centerX + centerY) < 1;
+
+        const axisX = Math.abs(centerY) < 1;
+        const axisY = Math.abs(centerX) < 1;
+
+	//const sin = Math.abs(y - (cy - Math.sin((centerX) * 0.1) * 15)) < 1.5; 
+
+        if (axisX || axisY) {
+          return { r: 1, g: 1, b: 1, a: 1 };
+	} else if (parabolaX || parabolaY || yxf) {
+          return { r: 1, g: 0, b: 0, a: 1 }; 
+	} else {
+          return { r: 0, g: 0, b: 1, a: 1 };
+        }
+      }
+    </script>
+  </body>
+</html>
