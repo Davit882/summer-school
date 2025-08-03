@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <canvas id="c" width="800" height="600"></canvas>
+    <script>
+      const C = document.getElementById("c").getContext("2d");
+      const W = C.canvas.width;
+      const H = C.canvas.height;
+      const epsilon = 2;
+
+      const I = C.createImageData(W, H);
+      drawFrame(I.data);
+      C.putImageData(I, 0, 0);
+
+      function drawFrame(D) {
+        let i = 0;
+        for (let y = 0; y < H; y++) {
+          const yCentered = y - H / 2;
+          for (let x = 0; x < W; x++) {
+            const xCentered = x - W / 2;
+            const p = getPixel(xCentered, yCentered);
+            D[i++] = Math.round(p.r * 255);
+            D[i++] = Math.round(p.g * 255);
+            D[i++] = Math.round(p.b * 255);
+            D[i++] = Math.round(p.a * 255);
+          }
+        }
+      }
+
+      function getPixel(x, y) {
+        const cx = x
+        const cy = -y
+        const bg = backgroundPattern(cx, cy);
+        const axes = coordinateAxes(cx, cy);
+        const logFunc = logFunction(cx, cy);
+        const expFunc = expFunction(cx, cy);
+        const lineA = aLine(cx,cy)
+        const over1 = overlay(logFunc, expFunc);
+        const over2 = overlay(over1, axes);
+        const over3 = overlay(over2,lineA)
+        return overlay(over3, bg);
+      }
+
+      function overlay(p1, p2) {
+        const a = p1.a + p2.a * (1 - p1.a);
+        if (a === 0) return { r: 0, g: 0, b: 0, a: 0 };
+        return {
+          r: (p1.r * p1.a + p2.r * p2.a * (1 - p1.a)) / a,
+          g: (p1.g * p1.a + p2.g * p2.a * (1 - p1.a)) / a,
+          b: (p1.b * p1.a + p2.b * p2.a * (1 - p1.a)) / a,
+          a: a,
+        };
+      }
+
+      function backgroundPattern(x, y) {
+        return { r: 1, g: 1, b: 0.5, a: 1 };
+      }
+
+      function coordinateAxes(x, y) {
+        const onXAxis = Math.abs(y) < epsilon;
+        const onYAxis = Math.abs(x) < epsilon;
+        if (onXAxis || onYAxis) {
+          return { r: 0, g: 0, b: 0, a: 1 };
+        }
+        return { r: 0, g: 0, b: 0, a: 0 };
+      }
+
+      function logFunction(x, y) {
+        const scaleX = 20;
+        const scaleY = 20;
+        const xReal = x / scaleX;
+        if (xReal <= 0) return { r: 0, g: 0, b: 0, a: 0 };
+        const yReal = Math.log2(xReal);
+        const yExpected = yReal * scaleY;
+        const onGraph = Math.abs(y - yExpected) < epsilon;
+        return { r: 0, g: 0.6, b: 0, a: onGraph ? 1 : 0 };
+      }
+
+      function expFunction(x, y) {
+        const scaleX = 20;
+        const scaleY = 20;
+        const xReal = x / scaleX;
+        const yReal = Math.pow(2, xReal);
+        const yExpected = yReal * scaleY;
+        if (!isFinite(yExpected)) return { r: 0, g: 0, b: 0, a: 0 };
+        const onGraph = Math.abs(y - yExpected) < epsilon;
+        return { r: 1.0, g: 0.0, b: 1.0, a: onGraph ? 1 : 0 };
+      }
+      function aLine(x, y) {
+        const yOnLine =  1 * x;
+        const onLine = Math.abs(y - yOnLine) < epsilon;
+        return { r: 0.0, g: 0.0, b: 1.0, a: onLine ? 1 : 0 };
+}
+
+    </script>
+  </body>
+</html>
+
