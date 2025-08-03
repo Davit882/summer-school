@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <canvas id="c" width="800" height="600"></canvas>
+    <script>
+      const C = document.getElementById("c").getContext("2d");
+      const W = C.canvas.width;
+      const H = C.canvas.height;
+
+      const I = C.getImageData(0, 0, W, H);
+      drawFrame(I.data);
+      C.putImageData(I, 0, 0);
+
+      function drawFrame(D) {
+        for (let y = 0, i = 0; y < H; y++) {
+          for (let x = 0; x < W; x++) {
+            const p = getPixel(x, y);
+            D[i++] = p.r * 255;
+            D[i++] = p.g * 255;
+            D[i++] = p.b * 255;
+            D[i++] = p.a * 255;
+          }
+        }
+      }
+
+      function getPixel(x, y) {
+        const points = [
+          { x: 300, y: 270 },
+          { x: 370, y: 300 },
+          { x: 360, y: 360 },
+          { x: 310, y: 390 },
+          { x: 260, y: 350 },
+        ];
+        return overlay(aConvexPolygon(x, y, points), backgroundPattern(x, y));
+      }
+
+      function overlay(p1, p2) {
+        const m = 1 - (1 - p1.a) * (1 - p2.a);
+        const a1 = p1.a / m,
+          a2 = p2.a * (1 - a1);
+        const blend = (c1, c2) => c1 * a1 + c2 * a2;
+        return {
+          r: blend(p1.r, p2.r),
+          g: blend(p1.g, p2.g),
+          b: blend(p1.b, p2.b),
+          a: m
+        };
+      }
+
+      function backgroundPattern(x, y) {
+        return { r: 0.5, g: 0.5, b: 0.5, a: 1 };
+      }
+
+      function aConvexPolygon(x, y, points) {
+        const epsilon = 1.5;
+        let onEdge = false;
+
+        for (let i = 0; i < points.length; i++) {
+          const p1 = points[i];
+          const p2 = points[(i + 1) % points.length];
+
+          const dx = p2.x - p1.x;
+          const dy = p2.y - p1.y;
+          const A = dy;
+          const B = -dx;
+          const C = dx * p1.y - dy * p1.x;
+
+          const dist =
+            Math.abs(A * x + B * y + C) / Math.sqrt(A * A + B * B);
+
+          if (dist < epsilon) {
+            const dot1 =
+              (x - p1.x) * (p2.x - p1.x) + (y - p1.y) * (p2.y - p1.y);
+            const dot2 =
+              (x - p2.x) * (p1.x - p2.x) + (y - p2.y) * (p1.y - p2.y);
+            if (dot1 >= 0 && dot2 >= 0) {
+              onEdge = true;
+              break;
+            }
+          }
+        }
+
+        return { r: 1.0, g: 0.0, b: 0.0, a: onEdge ? 1 : 0 };
+      }
+    </script>
+  </body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
