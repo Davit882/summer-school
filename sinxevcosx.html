@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <canvas id="c" width="800" height="600"></canvas>
+    <script>
+      const C = document.getElementById("c").getContext("2d");
+      const W = C.canvas.width;
+      const H = C.canvas.height;
+      const epsilon = 2;
+
+      function drawFrame(phaseShift = 0) {
+        const I = C.getImageData(0, 0, W, H);
+        const D = I.data;
+        for (let y = 0, i = 0; y < H; y++) {
+          for (let x = 0; x < W; x++) {
+            const p = getPixel(x, y, phaseShift);
+            D[i++] = p.r * 255;
+            D[i++] = p.g * 255;
+            D[i++] = p.b * 255;
+            D[i++] = p.a * 255;
+          }
+        }
+        C.putImageData(I, 0, 0);
+      }
+
+      function getPixel(x, y, phaseShift = 0) {
+        const bg = backgroundPattern(x, y);
+        const axes = coordinateAxes(x - W / 2, H / 2 - y);
+        const sine = sineWave(x, y, phaseShift);
+        const cosine = coseWave(x, y);
+        const graphLine = overlay(sine, cosine);
+        const overlay1 = overlay(graphLine, axes);
+        return overlay(overlay1, bg);
+      }
+
+      function overlay(p1, p2) {
+        const m = (1 - (1 - p1.a) * (1 - p2.a));
+        const a1 = m === 0 ? 0 : p1.a / m;
+        const a2 = m === 0 ? 0 : p2.a * (1 - a1);
+        const blend = (c1, c2) => (c1 * a1 + c2 * a2);
+        return {
+          r: blend(p1.r, p2.r),
+          g: blend(p1.g, p2.g),
+          b: blend(p1.b, p2.b),
+          a: m
+        };
+      }
+
+      function backgroundPattern(x, y) {
+        return { r: 0, g: 1, b: 0.5, a: 1 };
+      }
+
+      function sineWave(x, y, phase = 0, amplitude = 50, frequency = 0.02, yOffset = H / 2) {
+        const x0 = x;
+        const yExpected = amplitude * Math.sin(frequency * x0 + phase) + yOffset;
+        const onCurve = Math.abs(y - yExpected) < epsilon;
+        return { r: 1.0, g: 0.0, b: 0.0, a: onCurve ? 1 : 0 }; // Կարմիր
+      }
+
+      function coseWave(x, y, amplitude = 50, frequency = 0.02, yOffset = H / 2) {
+        const x0 = x;
+        const yExpected = amplitude * Math.cos(frequency * x0) + yOffset;
+        const onCurve = Math.abs(y - yExpected) < epsilon;
+        return { r: 0.0, g: 0.0, b: 1.0, a: onCurve ? 1 : 0 }; // Կապույտ
+      }
+
+      function coordinateAxes(x, y) {
+        const onXAxis = Math.abs(y) < epsilon;
+        const onYAxis = Math.abs(x) < epsilon;
+        if (onXAxis || onYAxis) {
+          return { r: 0.0, g: 0.0, b: 0.0, a: 1 };
+        }
+        return { r: 0, g: 0, b: 0, a: 0 };
+      }
+
+      // Ավտոմատ գործարկվող անիմացիա
+      async function morphSinToCos() {
+        for (let i = 0; i <= 100; i++) {
+          let t = (i / 100) * (Math.PI / 2); // 0 → π/2
+          drawFrame(t);
+          await new Promise(resolve => setTimeout(resolve, 10)); // 50ms դադար
+        }
+      }
+
+      // Սկսում ենք անմիջապես
+      morphSinToCos();
+    </script>
+  </body>
+</html>
+
