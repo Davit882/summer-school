@@ -1,24 +1,26 @@
 #include <iostream>
-using namespace std;
-  
 
-int main(){
-    int number ;
-    cout<<"please enter your number:";
-    cin>>number;
 
- if(number < 0){
-
-   number = -number;
- }
-   int sum = 0;
-
-  while(number>0){
-    int digit = number % 10;
-    sum +=digit;
-    number = number/10;
+int sumOfDigits(int num) {
+    if (num < 0) num = -num;  
+    int sum = 0;
+    while (num > 0) {
+        sum += num % 10;
+        num /= 10;
+    }
+    return sum;
 }
-   cout<<"sum of digits:"<<sum<<endl;
 
-return 0;
+int main() {
+    int inputNumber;
+
+    std::cout << "Please enter your number: ";
+    std::cin >> inputNumber;
+
+    int result = sumOfDigits(inputNumber);
+
+    std::cout << "Sum of digits: " << result << std::endl;
+
+    return 0;
 }
+
