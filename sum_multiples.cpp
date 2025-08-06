@@ -10,7 +10,7 @@ int sumOfMultiples(int max) {
     return total;
 }
 
-// ➤ Տպում է արդյունքը գեղեցիկ ձևով
+
 void printResult(int max, int total) {
     std::cout << "\nSum of all numbers less than " << max
               << " that are divisible by 3 or 5:\n";
